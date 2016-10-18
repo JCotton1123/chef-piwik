@@ -1,0 +1,10 @@
+AllCops:
+  Exclude:
+    - 'metadata.rb'
+    - 'Berksfile*'
+    - 'Vagrantfile'
+    - 'Thorfile'
+    - 'Gemfile*'
+
+LineLength:
+  Max: 200

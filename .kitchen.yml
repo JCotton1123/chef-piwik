@@ -1,0 +1,64 @@
+---
+driver:
+  name: vagrant
+  customize:
+    memory: 1536
+  network:
+    - ["private_network", {ip: '192.168.33.45'}]
+
+provisioner:
+  name: chef_solo
+  require_chef_omnibus: 12.8.1
+  data_bags_path: test/fixtures/data_bags
+
+platforms:
+  - name: ubuntu-14.04
+    run_list:
+      - recipe[apt::default]
+    attributes:
+      apt:
+        compile_time_update: true
+
+suites:
+  - name: default
+    data_bags_path: test/fixtures/data_bags
+    run_list:
+      - recipe[piwik_tester::default]
+    attributes:
+      piwik:
+        version: '2.16.0'
+        plugins:
+          CustomDimensions:
+            version: '0.1.4'
+            postactivate: >-
+              cd /var/www/piwik/current &&
+              ./console customdimensions:add-custom-dimension -n --scope=visit --count=10 &&
+              ./console customdimensions:add-custom-dimension -n --scope=action --count=10
+          IP2Location:
+            version: '2.1.8'
+            postinstall: >-
+              cd data &&
+              curl http://www.ip2location.com/downloads/sample.bin.db2.zip > db.zip &&
+              unzip db.zip
+        create_config: true
+        manage_config: false
+  - name: database
+    data_bags_path: test/fixtures/data_bags
+    run_list:
+      - recipe[piwik::database]
+    attributes:
+  - name: master
+    data_bags_path: test/fixtures/data_bags
+    run_list:
+      - recipe[apt::default]
+      - recipe[piwik::master]
+    attributes:
+      piwik:
+        master_host: '192.168.33.45'
+  - name: slave
+    data_bags_path: test/fixtures/data_bags
+    run_list:
+      - recipe[piwik::slave]
+    attributes:
+      piwik:
+        master_host: '192.168.33.45'

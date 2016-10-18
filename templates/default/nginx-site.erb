@@ -1,0 +1,49 @@
+server {
+  listen 80;
+  <% if @enable_ssl -%>
+  listen 443 ssl;
+  <% end -%>
+  server_name <%= @server_name %>;
+  server_tokens off;
+
+  <% if @enable_ssl -%>
+  ssl_certificate <%= @ssl_cert_file %>;
+  ssl_certificate_key <%= @ssl_key_file %>;
+  <% end -%>
+
+  root <%= @app_root %>/piwik;
+  index index.php;
+
+  <%- if @enable_https_redirect -%>
+  if ($scheme != "https") {
+    rewrite ^ https://$host$uri permanent;
+  }
+  <% end -%>
+
+  location = / {
+    return 301 http://$host/piwik$uri;
+  }
+
+  location = /ping {
+    fastcgi_pass 127.0.0.1:9000;
+    include fastcgi_params;
+    fastcgi_param  SCRIPT_FILENAME /var/www/piwik/current/piwik.php;
+  }
+
+  location /piwik {
+    alias /var/www/piwik/current;
+
+    <%- if @enable_https_x_forwarded_proto_redirect -%>
+    if ($http_x_forwarded_proto != "https") {
+      rewrite ^(.*)$ https://$host$uri permanent;
+    }
+    <%- end -%>
+
+    location ~ \.php(/|$) {
+      fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+      fastcgi_pass 127.0.0.1:9000;
+      fastcgi_index index.php;
+      include fastcgi_params;
+    }
+  }
+}

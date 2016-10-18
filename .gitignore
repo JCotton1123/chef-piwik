@@ -1,0 +1,41 @@
+##With version 1.8.2 of git, you can also use the ** wildcard to match any level of subdirectories
+
+**/.DS_Store
+**/.DS_Store?
+**/._*
+**/.Spotlight-V100
+**/.Trashes
+**/ehthumbs.db
+**/Thumbs.db
+**/*~
+**/*#
+**/.#*
+**/\#*#
+**/.*.sw[a-z]
+**/*.un~
+
+# Berkshelf
+**/.vagrant
+**/Berksfile.lock
+
+# https://github.com/bundler/bundler/blob/master/.gitignore
+# Bundler
+**/Gemfile.lock
+**/.bundle/
+
+**/.kitchen/
+**/.kitchen.local.yml
+
+# Chef
+**/.chef
+
+# Intellij
+**/.idea/
+**/*.iml
+
+pkg/
+/cookbooks
+
+# Bundler
+bin/*
+
